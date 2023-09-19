@@ -8,10 +8,11 @@ import random
 from abstract_agent import AbstractAgent
 from physical_agent import PhysAgent
 from abc import ABC, abstractmethod
+from collections import deque
 
 
 class Explorer(AbstractAgent):
-    def __init__(self, env, config_file, resc):
+    def __init__(self, env, config_file, resc, preferencia):
         """ Construtor do agente random on-line
         @param env referencia o ambiente
         @config_file: the absolute path to the explorer's config file
@@ -23,6 +24,17 @@ class Explorer(AbstractAgent):
         # Specific initialization for the rescuer
         self.resc = resc           # reference to the rescuer agent
         self.rtime = self.TLIM     # remaining time to explore     
+        self.path = []             # path to the base
+        self.visited_cells = []    # cells already visited
+        self.current_neighbors = [] # neighbors of the current cell
+        if preferencia == 0:
+            self.movements = [(0, 1), (1, 0), (0, -1), (-1, 0), (1, -1), (-1, 1), (1, 1), (-1,-1)]
+        elif preferencia == 1:
+            self.movements = [(-1, 0), (0, 1), (1, 0), (0, -1), (1, -1), (-1, 1), (1, 1), (-1,-1)]
+        elif preferencia == 2:
+            self.movements = [(0, -1), (-1, 0), (0, 1),(1, 0), (1, -1), (-1, 1), (1, 1), (-1,-1)]
+        elif preferencia == 3:
+            self.movements = [(1, 0), (0, -1), (-1, 0),(0, 1),(1, -1), (-1, 1), (1, 1), (-1,-1)]
 
    
     
@@ -30,6 +42,7 @@ class Explorer(AbstractAgent):
         """ The agent chooses the next action. The simulator calls this
         method at each cycle. Must be implemented in every agent"""
 
+        new_path_find = False
         # No more actions, time almost ended
         if self.rtime < 10.0: 
             # time to wake up the rescuer
@@ -38,16 +51,37 @@ class Explorer(AbstractAgent):
             self.resc.go_save_victims([],[])
             return False
         
-        dx = random.choice([-1, 0, 1])
 
-        if dx == 0:
-           dy = random.choice([-1, 1])
+
+        if self.body.at_base():
+            x,y = self.body.x_base, self.body.y_base
         else:
-           dy = random.choice([-1, 0, 1])
+            x,y = self.body.x, self.body.y
+
         
+        self.current_neighbors = []
+        self.visited_cells.append((x,y))
+  
+        for mov in self.movements:
+            (nx, ny) = (x + mov[0], y + mov[1])
+            self.current_neighbors.append((nx, ny))
+        
+        for neighbor in self.current_neighbors:
+            #print(neighbor)
+            if neighbor not in self.visited_cells:
+                dx = neighbor[0] - x
+                dy = neighbor[1] - y
+                self.visited_cells.append(neighbor)
+                new_path_find = True
+                break
+
+        if not new_path_find:
+            (dx,dy) = self.path.pop()  # Remove o nó atual do caminho ao retroceder
+        else:
+            self.path.append((-dx,-dy))
+
         # Check the neighborhood obstacles
         obstacles = self.body.check_obstacles()
-
 
         # Moves the body to another position
         result = self.body.walk(dx, dy)

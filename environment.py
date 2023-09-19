@@ -201,6 +201,7 @@ class Env:
                active_idle = True
 
         # Update the display
+        time.sleep(0.07)
         pygame.display.update()
         
                 
