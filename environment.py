@@ -260,7 +260,7 @@ class Env:
             if self.dic["DELAY"] > 0:
                 time.sleep(self.dic["DELAY"])
                 
-            self.__draw()
+            self.__draw()  
 
             # Show metrics
             if not active_or_idle:
