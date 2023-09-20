@@ -21,6 +21,8 @@ class Rescuer(AbstractAgent):
         # Specific initialization for the rescuer
         self.plan = []              # a list of planned actions
         self.rtime = self.TLIM      # for controlling the remaining time
+        self.mapa = {}
+        self.counter = 0
         
         # Starts in IDLE state.
         # It changes to ACTIVE when the map arrives
@@ -29,11 +31,18 @@ class Rescuer(AbstractAgent):
         # planning
         self.__planner()
     
-    def go_save_victims(self, walls, victims):
+    def go_save_victims(self, mapa):
         """ The explorer sends the map containing the walls and
         victims' location. The rescuer becomes ACTIVE. From now,
         the deliberate method is called by the environment"""
-        self.body.set_state(PhysAgent.ACTIVE)
+        self.counter += 1
+        if self.counter == 4:
+            self.body.set_state(PhysAgent.ACTIVE)
+
+        print(mapa)
+        for key, value in mapa.items():
+            if key not in self.mapa:
+                self.mapa[key] = value
         
     
     def __planner(self):
@@ -60,6 +69,8 @@ class Rescuer(AbstractAgent):
         Must be implemented in every agent
         @return True: there's one or more actions to do
         @return False: there's no more action to do """
+
+        print(self.mapa)
 
         # No more actions to do
         if self.plan == []:  # empty list, no more actions to do

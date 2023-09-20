@@ -14,7 +14,7 @@ from collections import deque
 
 
 class Explorer(AbstractAgent):
-    def __init__(self, env, config_file, resc, preferencia):
+    def __init__(self, env, config_file, rescs, preferencia):
         """ Construtor do agente random on-line
         @param env referencia o ambiente
         @config_file: the absolute path to the explorer's config file
@@ -24,7 +24,7 @@ class Explorer(AbstractAgent):
         super().__init__(env, config_file)
         
         # Specific initialization for the rescuer
-        self.resc = resc           # reference to the rescuer agent
+        self.rescs = rescs           # reference to the rescuer agent
         self.rtime = self.TLIM     # remaining time to explore     
         self.path = []             # path executed
         self.returning_path = []   # path to return to base
@@ -120,9 +120,13 @@ class Explorer(AbstractAgent):
             if self.rtime < 5.0 and self.body.at_base(): 
                 # time to wake up the rescuer
                 # pass the walls and the victims (here, they're empty)
-                print(self.mapa)
+                #print(self.mapa)
                 print(f"{self.NAME} I believe I've remaining time of {self.rtime:.1f}")
-                self.resc.go_save_victims([],[])
+                
+                # Call go_save_victims for each rescuer in the list
+                for resc in self.rescs:
+                    resc.go_save_victims([self.mapa])
+
                 return False
             else:
                 x2, y2 = self.returning_path.pop()
