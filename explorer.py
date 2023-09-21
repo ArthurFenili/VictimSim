@@ -30,7 +30,8 @@ class Explorer(AbstractAgent):
         self.returning_path = []   # path to return to base
         self.visited_cells = []    # cells already visited
         self.movements_cost = {}   # cost of each movement
-        self.mapa = {}             # map of the environment
+        self.mapa = []             # map of the environment
+        self.coordinates_info = {}      # coordinates information
         self.x = 0  # initial relative x position
         self.y = 0  # initial relative y position
         self.preferencia = preferencia
@@ -117,7 +118,7 @@ class Explorer(AbstractAgent):
  
         # No more actions, time almost ended
         if self.returning:
-            if self.rtime < 5.0 and self.body.at_base(): 
+            if self.rtime <= 5.0 and self.body.at_base(): 
                 # time to wake up the rescuer
                 # pass the walls and the victims (here, they're empty)
                 #print(self.mapa)
@@ -125,16 +126,13 @@ class Explorer(AbstractAgent):
                 
                 # Call go_save_victims for each rescuer in the list
                 for resc in self.rescs:
-                    resc.go_save_victims([self.mapa])
+                    resc.go_save_victims(self.coordinates_info)
 
                 return False
             else:
                 x2, y2 = self.returning_path.pop()
-                print("x2 =", x2, "y2 =", y2)
-                print("x =", x, "y =", y)
                 dx2 = x2 - x
                 dy2 = y2 - y
-                print("dx2 =", dx2, "dy2 =", dy2)
                 self.body.walk(dx2, dy2)
                 self.x = x + dx2
                 self.y = y + dy2
@@ -153,7 +151,7 @@ class Explorer(AbstractAgent):
             if obst[(mov[0], mov[1])] == 0:
                 current_neighbors.append((nx, ny))
             else:
-                self.mapa[(nx, ny)] = obst[(mov[0], mov[1])]
+                self.coordinates_info[(nx,ny)] = ['obstacle' , 0]
 
         for neighbor in current_neighbors:
             if neighbor not in self.visited_cells:
@@ -170,8 +168,6 @@ class Explorer(AbstractAgent):
             if self.rtime - cost <= 5.0 and self.rtime - cost > 0.0:
                 self.returning = 1
                 print("returning")
-                self.returning_path.pop()
-                print(self.returning_path)
                 return True
 
         if not new_path_find:
@@ -184,24 +180,33 @@ class Explorer(AbstractAgent):
         self.x = x+dx
         self.y = y+dy
         update_time(dx, dy)
-        if self.preferencia == 0:
-            print(self.x, self.y)
 
         # Test the result of the walk action
         if result == PhysAgent.BUMPED:
-            walls = 1  # build the map- to do
+            walls = 1 
+            self.coordinates_info[(self.x,self.y)] = ['obstacle' , 0]
             # print(self.name() + ": wall or grid limit reached")
 
         if result == PhysAgent.EXECUTED:
             # check for victim returns -1 if there is no victim or the sequential
             # the sequential number of a found victim
+            self.coordinates_info[(self.x,self.y)] = ['path' , 0]
             seq = self.body.check_for_victim()
             if seq >= 0:
                 vs = self.body.read_vital_signals(seq)
                 self.rtime -= self.COST_READ
+                if vs[7] == 1:
+                    peso = 6
+                elif vs[7] == 2:
+                    peso = 3
+                elif vs[7] == 3:
+                    peso = 2
+                elif vs[7] == 4:
+                    peso = 1
+                self.coordinates_info[(self.x,self.y)] = ['victim' , peso]
                 # print("exp: read vital signals of " + str(seq))
                 # print(vs)
-        
+
         self.visited_cells.append((self.x,self.y))
         
         return True
