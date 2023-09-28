@@ -73,9 +73,10 @@ class Rescuer(AbstractAgent):
                 coordinates.append(key)
 
         for key, value in self.full_map.items():
-            if value[0] == 'path':
+            if value[0] != 'obstacle':
                 self.valid_path.append(key)
 
+        print(f"Total de caminhos explorados: {len(self.full_map)}")
         # print(weights)
         # print(coordinates)
         # Normalize weights to sum up to 1 (optional)
@@ -105,11 +106,18 @@ class Rescuer(AbstractAgent):
         victims. Further actions may be necessary and should be added in the
         deliberata method"""
 
+        vge = 0  
         # This is a off-line trajectory plan, each element of the list is
         # a pair dx, dy that do the agent walk in the x-axis and/or y-axis
+
+        
+
         self.my_cluster.sort(key=lambda x: x[1])
         for point, weight in self.my_cluster:
             self.my_victims.append(point)
+
+
+                
 
         print(f"SO THE VICTIMS I (CLUSTER {self.preferencia}) HAVE TO RESCUE ARE:")
         print(self.my_victims)
