@@ -166,6 +166,68 @@ class Rescuer(AbstractAgent):
 
         return path2, g_score[goal]  # Não foi possível encontrar um caminho
     
+    def find_best_route(self):
+        # Define your objectives as a list of coordinates (e.g., (x, y))
+        objectives = self.my_victims
+
+        # Define the number of individuals in the population
+        population_size = 500
+
+        # Define the maximum number of generations
+        max_generations = 1000
+
+        # Define the mutation rate
+        mutation_rate = 0.1
+
+        # Define the fitness function (you can customize this)
+        def fitness(chromosome):
+            # Calculate the total distance traveled for a given chromosome
+            total_distance = 0
+            for i in range(len(chromosome) - 1):
+                x1, y1 = chromosome[i]
+                x2, y2 = chromosome[i + 1]
+                distance = ((x2 - x1) ** 2 + (y2 - y1) ** 2) ** 0.5
+                total_distance += distance
+            return 1 / total_distance  # Inverse of distance as a fitness
+
+        # Generate an initial population
+        population = [random.sample(objectives, len(objectives)) for _ in range(population_size)]
+
+        # Main genetic algorithm loop
+        for generation in range(max_generations):
+            # Evaluate the fitness of each chromosome
+            fitness_values = [fitness(chromosome) for chromosome in population]
+
+            # Select parents based on fitness
+            parents = random.choices(population, weights=fitness_values, k=population_size)
+
+            # Create a new population through crossover and mutation
+            new_population = []
+            for _ in range(population_size):
+                parent1, parent2 = random.sample(parents, 2)
+                child = parent1[:]
+                
+                if random.random() < mutation_rate:
+                    # Apply mutation by swapping two objectives
+                    idx1, idx2 = random.sample(range(len(child)), 2)
+                    child[idx1], child[idx2] = child[idx2], child[idx1]
+
+                new_population.append(child)
+
+            # Replace the old population with the new population
+            population = new_population
+
+        # Get the best chromosome from the final population
+        best_chromosome = max(population, key=fitness)
+
+        print("Best sequence of objectives:", best_chromosome)
+        print("Total distance for the best sequence:", sum(fitness_values))
+
+        # You can visualize the best sequence of objectives on the map using the coordinates in `best_chromosome`.
+
+        return best_chromosome
+
+
     def __planner(self):
         """ A private method that calculates the walk actions to rescue the
         victims. Further actions may be necessary and should be added in the
@@ -182,61 +244,63 @@ class Rescuer(AbstractAgent):
 
         self.my_victims.insert(0, (0,0))
 
-        map_coordinates = []
-        for key, value in self.full_map.items():
-            if value[0] == 'victim':
-                map_coordinates.append(key)
-
-        # Função para calcular a distância entre duas coordenadas
-        def distancia(coord1, coord2):
-            return np.sqrt((coord1[0]-coord2[0])**2 + (coord1[1]-coord2[1])**2) #ver o melhor calculo de distancia
-
-        def aptidao(individual):
-            dist = distancia((0,0), self.my_victims[individual[0]])  # Distância da base à primeira coordenada
-            for i in range(len(individual)-1):
-                dist += distancia(self.my_victims[individual[i]], self.my_victims[individual[i+1]])
-            dist += distancia(self.my_victims[individual[-1]], (0,0))  # Distância da última coordenada à base
-            return dist,
-
-        # Definindo o problema como um problema de minimização
-        creator.create("FitnessMin", base.Fitness, weights=(-1.0,))
-        creator.create("Individual", list, fitness=creator.FitnessMin)
-
-        toolbox = base.Toolbox()
-
-        # Inicialização
-        self.my_victims.pop(0)
-        toolbox.register("indices", random.sample, range(len(self.my_victims)), len(self.my_victims)) # A base (0,0) é excluída da inicialização
         self.my_victims.insert(0, (0,0))
-        toolbox.register("individual", tools.initIterate, creator.Individual, toolbox.indices)
-        toolbox.register("population", tools.initRepeat, list, toolbox.individual)
 
-        # Operadores
-        toolbox.register("evaluate", aptidao)
-        toolbox.register("mate", tools.cxOrdered)
-        toolbox.register("mutate", tools.mutShuffleIndexes, indpb=0.05)
-        toolbox.register("select", tools.selTournament, tournsize=3)
+        melhor_rota = self.find_best_route()
+        print(f"THE BEST ROUTE IS: {melhor_rota}")
+        # map_coordinates = []
+        # for key, value in self.full_map.items():
+        #     if value[0] == 'victim':
+        #         map_coordinates.append(key)
 
-        # Parâmetros do algoritmo genético
-        pop = toolbox.population(n=100)
-        hof = tools.HallOfFame(1)
-        stats = tools.Statistics(lambda ind: ind.fitness.values)
-        stats.register("Avg", np.mean)
-        stats.register("Std", np.std)
-        stats.register("Min", np.min)
-        stats.register("Max", np.max)
+        # # Função para calcular a distância entre duas coordenadas
+        # def distancia(coord1, coord2):
+        #     return np.sqrt((coord1[0]-coord2[0])**2 + (coord1[1]-coord2[1])**2) #ver o melhor calculo de distancia
 
-        # Executando o algoritmo genético
-        pop, log = algorithms.eaSimple(pop, toolbox, cxpb=0.5, mutpb=0.2, ngen=40, 
-                                        stats=stats, halloffame=hof, verbose=True)
+        #def aptidao(individual):
+        #    dist = distancia((0,0), self.my_victims[individual[0]])  # Distância da base à primeira coordenada
+        #    for i in range(len(individual)-1):
+        #        dist += distancia(self.my_victims[individual[i]], self.my_victims[individual[i+1]])
+        #    dist += distancia(self.my_victims[individual[-1]], (0,0))  # Distância da última coordenada à base
+        #    return dist,
 
-        # Imprimindo a melhor rota
-        print("Melhor rota:", [self.my_victims[i] for i in hof[0]])
+        # # Definindo o problema como um problema de minimização
+        # creator.create("FitnessMin", base.Fitness, weights=(-1.0,))
+        # creator.create("Individual", list, fitness=creator.FitnessMin)
 
+        # toolbox = base.Toolbox()
+
+        # # Inicialização
+        # toolbox.register("indices", random.sample, range(len(self.my_victims)), len(self.my_victims))
+        # toolbox.register("individual", tools.initIterate, creator.Individual, toolbox.indices)
+        # toolbox.register("population", tools.initRepeat, list, toolbox.individual)
+
+        # # Operadores
+        # toolbox.register("evaluate", aptidao)
+        # toolbox.register("mate", tools.cxOrdered)
+        # toolbox.register("mutate", tools.mutShuffleIndexes, indpb=0.05)
+        # toolbox.register("select", tools.selTournament, tournsize=3)
+
+        # # Parâmetros do algoritmo genético
+        # pop = toolbox.population(n=100)
+        # hof = tools.HallOfFame(1)
+        # stats = tools.Statistics(lambda ind: ind.fitness.values)
+        # stats.register("Avg", np.mean)
+        # stats.register("Std", np.std)
+        # stats.register("Min", np.min)
+        # stats.register("Max", np.max)
+
+        # # Executando o algoritmo genético
+        # pop, log = algorithms.eaSimple(pop, toolbox, cxpb=0.5, mutpb=0.2, ngen=40, 
+        #                                 stats=stats, halloffame=hof, verbose=True)
+
+        # # Imprimindo a melhor rota
+        # print("Melhor rota:", [self.my_victims[i] for i in hof[0]])
+        # melhor_rota =  [self.my_victims[i] for i in hof[0]]
+        # print(f"THE BEST ROUTE IS: {melhor_rota}")
         x_aux, y_aux = self.x, self.y
         time_aux = self.rtime
-        melhor_rota =  [self.my_victims[i] for i in hof[0]]
-        print(f"THE BEST ROUTE IS: {melhor_rota}")
+        
         plan_aux = []
         # #THE PLAN HAS TO HAVE ONLY DX,DY MOVEMENTS
 

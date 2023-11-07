@@ -44,7 +44,6 @@ class Explorer(AbstractAgent):
             self.movements = [(0, -1), (-1, 0), (0, 1),(1, 0), (1, -1), (-1, 1), (1, 1), (-1,-1)]
         elif preferencia == 3:
             self.movements = [(1, 0), (0, -1), (-1, 0),(0, 1),(1, -1), (-1, 1), (1, 1), (-1,-1)]
- 
 
    
     def shortest_path_with_costs(self, start, goal):
