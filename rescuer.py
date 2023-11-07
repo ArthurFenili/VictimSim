@@ -84,7 +84,6 @@ class Rescuer(AbstractAgent):
 
         for key, value in self.full_map.items():
             if value[0] != 'obstacle':
-            if value[0] != 'obstacle':
                 self.valid_path.append(key)
 
         print(f"Total de caminhos explorados: {len(self.full_map)}")
@@ -181,6 +180,8 @@ class Rescuer(AbstractAgent):
         print(f"SO THE VICTIMS I (CLUSTER {self.preferencia}) HAVE TO RESCUE ARE:")
         print(self.my_victims)
 
+        self.my_victims.insert(0, (0,0))
+
         map_coordinates = []
         for key, value in self.full_map.items():
             if value[0] == 'victim':
@@ -190,11 +191,11 @@ class Rescuer(AbstractAgent):
         def distancia(coord1, coord2):
             return np.sqrt((coord1[0]-coord2[0])**2 + (coord1[1]-coord2[1])**2) #ver o melhor calculo de distancia
 
-        # Função de aptidão
         def aptidao(individual):
-            dist = 0
+            dist = distancia((0,0), self.my_victims[individual[0]])  # Distância da base à primeira coordenada
             for i in range(len(individual)-1):
                 dist += distancia(self.my_victims[individual[i]], self.my_victims[individual[i+1]])
+            dist += distancia(self.my_victims[individual[-1]], (0,0))  # Distância da última coordenada à base
             return dist,
 
         # Definindo o problema como um problema de minimização
@@ -204,7 +205,9 @@ class Rescuer(AbstractAgent):
         toolbox = base.Toolbox()
 
         # Inicialização
-        toolbox.register("indices", random.sample, range(len(self.my_victims)), len(self.my_victims))
+        self.my_victims.pop(0)
+        toolbox.register("indices", random.sample, range(len(self.my_victims)), len(self.my_victims)) # A base (0,0) é excluída da inicialização
+        self.my_victims.insert(0, (0,0))
         toolbox.register("individual", tools.initIterate, creator.Individual, toolbox.indices)
         toolbox.register("population", tools.initRepeat, list, toolbox.individual)
 
@@ -244,17 +247,17 @@ class Rescuer(AbstractAgent):
             return_path_later, return_cost_later = self.shortest_path_with_costs((victim[0], victim[1]), (self.x, self.y))
             if return_cost_later + self.COST_FIRST_AID >= time_aux: 
                 #if the returning path from the next victim takes more time than I have, I have to go back to the base
-                plan_aux.extend(return_path_now)
+                plan_aux.extend(return_path_now[1:])
                 time_aux -= return_cost_now
                 break
             elif victim == melhor_rota[-1]:
                 #if it is the last victim, I have 
                 # to go back to the base
-                plan_aux.extend(victim_path)
-                plan_aux.extend(return_path_later)
+                plan_aux.extend(victim_path[1:])
+                plan_aux.extend(return_path_later[1:])
                 break
             else:
-                plan_aux.extend(victim_path)
+                plan_aux.extend(victim_path[1:])
                 print("path" ,victim_path)
                 time_aux -= victim_cost
                 x_aux = victim[0]
@@ -262,6 +265,8 @@ class Rescuer(AbstractAgent):
         
         print(x_aux, y_aux)
         print(f"MY PLAN: {plan_aux}")
+
+        plan_aux.insert(0, (0,0))
         plan_aux.reverse()
         return plan_aux       
 
