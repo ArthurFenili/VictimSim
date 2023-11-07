@@ -84,8 +84,10 @@ class Rescuer(AbstractAgent):
 
         for key, value in self.full_map.items():
             if value[0] != 'obstacle':
+            if value[0] != 'obstacle':
                 self.valid_path.append(key)
 
+        print(f"Total de caminhos explorados: {len(self.full_map)}")
         # print(weights)
         # print(coordinates)
         # Normalize weights to sum up to 1 (optional)

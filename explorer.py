@@ -37,13 +37,13 @@ class Explorer(AbstractAgent):
         self.preferencia = preferencia
         self.returning = 0 
         if preferencia == 0:
-            self.movements = [(0, 1), (1, 0), (0, -1), (-1, 0), (1, -1), (-1, 1), (1, 1), (-1,-1)]
+            self.movements = [(0,-1), (-1,0), (1,0), (0,1), (1,-1), (1,1), (-1,-1), (-1,1)]
         elif preferencia == 1:
-            self.movements = [(-1, 0), (0, 1), (1, 0), (0, -1), (1, -1), (-1, 1), (1, 1), (-1,-1)]
+            self.movements = [(0,1), (-1,0), (1,0), (0,-1), (-1,1), (-1,-1), (1,1), (1,-1)]
         elif preferencia == 2:
-            self.movements = [(0, -1), (-1, 0), (0, 1),(1, 0), (1, -1), (-1, 1), (1, 1), (-1,-1)]
+            self.movements = [(1,0), (0,-1), (0,1), (-1,0), (1,1), (1,-1), (-1,1), (-1,-1)]
         elif preferencia == 3:
-            self.movements = [(1, 0), (0, -1), (-1, 0),(0, 1),(1, -1), (-1, 1), (1, 1), (-1,-1)]
+            self.movements = [(-1,0), (0,1), (0,-1), (1,0), (-1,-1), (-1,1), (1,-1), (1,1)]
 
    
     def shortest_path_with_costs(self, start, goal):
@@ -86,7 +86,7 @@ class Explorer(AbstractAgent):
                     current_node = came_from[current_node]
                 path.append(start)
                 # print("path: ", path)
-                print("cost: ", g_score[goal])
+                #print("cost: ", g_score[goal])
                 return path, g_score[goal]  # Retorna o caminho e o custo total
 
             for neighbor, cost in neighbors(current_node):
@@ -161,7 +161,7 @@ class Explorer(AbstractAgent):
         current_pos = (x,y)
         self.returning_path, cost = self.shortest_path_with_costs(current_pos, (0,0))
         #print(self.returning_path)
-        print("remaining time ", self.rtime)
+        #print("remaining time ", self.rtime)
         if self.returning_path:
             if self.rtime - cost <= 5.0 and self.rtime - cost > 0.0:
                 self.returning = 1
