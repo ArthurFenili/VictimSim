@@ -47,8 +47,6 @@ class Explorer(AbstractAgent):
 
    
     def shortest_path_with_costs(self, start, goal):
-        print("start: ", start)
-        print("goal: ", goal)
         def heuristic(node):
             x1, y1 = node
             x2, y2 = goal
@@ -63,7 +61,7 @@ class Explorer(AbstractAgent):
                 nx, ny = x + dx, y + dy
                 neighbor = (nx, ny)
 
-                if neighbor in self.visited_cells:
+                if neighbor in self.visited_cells: #Só considera vizinhos em células já visitadas
                     if dx == 0 or dy == 0:
                         cost = self.COST_LINE  # Movimento em linha
                     else:
@@ -73,7 +71,7 @@ class Explorer(AbstractAgent):
 
             return valid_neighbors
         
-        open_list = [(0, start)]  # Lista de prioridade (f, nó)
+        open_list = [(0, start)]  # Lista de prioridade (f_score, nó)
         came_from = {}  # Dicionário para rastrear o caminho
         g_score = {node: float('inf') for node in self.visited_cells}
         g_score[start] = 0

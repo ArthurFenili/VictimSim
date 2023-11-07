@@ -262,13 +262,13 @@ class Env:
                 
             self.__draw()  
 
-            # # Show metrics
-            # if not active_or_idle:
-            #     print("from env: no active or idle agent scheduled for execution... terminating")
-            #     self.print_results()
-            #     print("\n--------------")
-            #     input("from env: Tecle qualquer coisa para encerrar >>")
-            #     running = False
+            # Show metrics
+            if not active_or_idle:
+                print("from env: no active or idle agent scheduled for execution... terminating")
+                self.print_results()
+                print("\n--------------")
+                input("from env: Tecle qualquer coisa para encerrar >>")
+                running = False
    
 
         # Quit Pygame
