@@ -37,13 +37,13 @@ class Explorer(AbstractAgent):
         self.preferencia = preferencia
         self.returning = 0 
         if preferencia == 0:
-            self.movements = [(0,-1), (-1,0), (1,0), (0,1), (1,-1), (1,1), (-1,-1), (-1,1)]
+            self.movements = [(0, 1), (1, 0), (0, -1), (-1, 0), (1, -1), (-1, 1), (1, 1), (-1,-1)]
         elif preferencia == 1:
-            self.movements = [(0,1), (-1,0), (1,0), (0,-1), (-1,1), (-1,-1), (1,1), (1,-1)]
+            self.movements = [(-1, 0), (0, 1), (1, 0), (0, -1), (1, -1), (-1, 1), (1, 1), (-1,-1)]
         elif preferencia == 2:
-            self.movements = [(1,0), (0,-1), (0,1), (-1,0), (1,1), (1,-1), (-1,1), (-1,-1)]
+            self.movements = [(0, -1), (-1, 0), (0, 1),(1, 0), (1, -1), (-1, 1), (1, 1), (-1,-1)]
         elif preferencia == 3:
-            self.movements = [(-1,0), (0,1), (0,-1), (1,0), (-1,-1), (-1,1), (1,-1), (1,1)]
+            self.movements = [(1, 0), (0, -1), (-1, 0),(0, 1),(1, -1), (-1, 1), (1, 1), (-1,-1)]
 
    
     def shortest_path_with_costs(self, start, goal):
