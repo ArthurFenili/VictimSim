@@ -15,12 +15,12 @@ def determine_status(pressure, pulse, respiration):
 
     # Get the output value
     gravity_status = simulator.output['gravity']
-
+    print("simulator.output['gravity']: ", simulator.output['gravity'])
 
     # Determine the situation based on the gravity_status
     if gravity_status <= 25:
         situacao.append("Stable")
-    elif gravity_status <= 50:
+    elif gravity_status <=42:
         situacao.append("Potentially Stable")
     elif gravity_status <= 70:
         situacao.append("Unstable")
@@ -80,25 +80,25 @@ gravity = ctrl.Consequent(np.arange(0, 100, 0.1), 'gravity')
 #qualidade quando a pressão está excessivamente baixa, +10 é a pior qualidade quando
 #a pressão está excessivamente alta
  # Funções de pertinência para Pressão
-pressao['low'] = fuzz.trimf(pressao.universe, [-10, -5, 0])
+pressao['low'] = fuzz.trimf(pressao.universe, [-10, -6, 0])
 pressao['good'] = fuzz.trimf(pressao.universe, [-5, 0, 5])
-pressao['high'] = fuzz.trimf(pressao.universe, [0, 5, 10])
+pressao['high'] = fuzz.trimf(pressao.universe, [2, 6, 10])
 
 # Funções de pertinência para Pulso
-pulso['low'] = fuzz.trimf(pulso.universe, [0, 50, 100])
-pulso['medium'] = fuzz.trimf(pulso.universe, [50, 100, 150])
-pulso['high'] = fuzz.trimf(pulso.universe, [100, 150, 200])
+pulso['low'] = fuzz.trimf(pulso.universe, [0, 35, 50])
+pulso['medium'] = fuzz.trimf(pulso.universe, [45, 70, 110])
+pulso['high'] = fuzz.trimf(pulso.universe, [90, 130, 200])
 
 # Funções de pertinência para Respiração
 respiracao['low'] = fuzz.trimf(respiracao.universe, [0, 7, 14])
-respiracao['medium'] = fuzz.trimf(respiracao.universe, [7, 14, 21])
-respiracao['high'] = fuzz.trimf(respiracao.universe, [14, 21, 22])
+respiracao['medium'] = fuzz.trimf(respiracao.universe, [8, 15, 21])
+respiracao['high'] = fuzz.trimf(respiracao.universe, [17, 21, 22])
 
 # Funções de pertinência para Gravidade
 gravity['low'] = fuzz.trimf(gravity.universe, [0, 15, 25])
-gravity['medium'] = fuzz.trimf(gravity.universe, [10, 25, 50])
-gravity['high'] = fuzz.trimf(gravity.universe, [30, 50, 75]) 
-gravity['very_high'] = fuzz.trimf(gravity.universe, [50, 90, 100])
+gravity['medium'] = fuzz.trimf(gravity.universe, [20, 35, 50])
+gravity['high'] = fuzz.trimf(gravity.universe, [40, 50, 75]) 
+gravity['very_high'] = fuzz.trimf(gravity.universe, [70, 90, 100])
 
 # Step 4: Define Fuzzy Rules
 rule1 = ctrl.Rule(pressao['low'] & pulso['low'] & respiracao['low'], gravity['high']) #
@@ -113,24 +113,24 @@ rule7 = ctrl.Rule(pressao['low'] & pulso['high'] & respiracao['low'], gravity['h
 rule8 = ctrl.Rule(pressao['low'] & pulso['high'] & respiracao['medium'], gravity['medium'])
 rule9 = ctrl.Rule(pressao['low'] & pulso['high'] & respiracao['high'], gravity['very_high']) #
 
-rule10 = ctrl.Rule(pressao['good'] & pulso['low'] & respiracao['low'], gravity['low'])
+rule10 = ctrl.Rule(pressao['good'] & pulso['low'] & respiracao['low'], gravity['high'])
 rule11 = ctrl.Rule(pressao['good'] & pulso['low'] & respiracao['medium'], gravity['low']) #
-rule12 = ctrl.Rule(pressao['good'] & pulso['low'] & respiracao['high'], gravity['low']) #
+rule12 = ctrl.Rule(pressao['good'] & pulso['low'] & respiracao['high'], gravity['medium']) #
 
-rule13 = ctrl.Rule(pressao['good'] & pulso['medium'] & respiracao['low'], gravity['medium']) #
-rule14 = ctrl.Rule(pressao['good'] & pulso['medium'] & respiracao['medium'], gravity['medium']) #
-rule15 = ctrl.Rule(pressao['good'] & pulso['medium'] & respiracao['high'], gravity['high'])
+rule13 = ctrl.Rule(pressao['good'] & pulso['medium'] & respiracao['low'], gravity['low']) #
+rule14 = ctrl.Rule(pressao['good'] & pulso['medium'] & respiracao['medium'], gravity['low']) #
+rule15 = ctrl.Rule(pressao['good'] & pulso['medium'] & respiracao['high'], gravity['low'])
 
 rule16 = ctrl.Rule(pressao['good'] & pulso['high'] & respiracao['low'], gravity['medium'])
 rule17 = ctrl.Rule(pressao['good'] & pulso['high'] & respiracao['medium'], gravity['high'])
 rule18 = ctrl.Rule(pressao['good'] & pulso['high'] & respiracao['high'], gravity['high'])
 
-rule19 = ctrl.Rule(pressao['high'] & pulso['low'] & respiracao['low'], gravity['medium'])
+rule19 = ctrl.Rule(pressao['high'] & pulso['low'] & respiracao['low'], gravity['high'])
 rule20 = ctrl.Rule(pressao['high'] & pulso['low'] & respiracao['medium'], gravity['high']) #
-rule21 = ctrl.Rule(pressao['high'] & pulso['low'] & respiracao['high'], gravity['high']) #
+rule21 = ctrl.Rule(pressao['high'] & pulso['low'] & respiracao['high'], gravity['very_high']) #
 
 rule22 = ctrl.Rule(pressao['high'] & pulso['medium'] & respiracao['low'], gravity['high'])
-rule23 = ctrl.Rule(pressao['high'] & pulso['medium'] & respiracao['medium'], gravity['high'])
+rule23 = ctrl.Rule(pressao['high'] & pulso['medium'] & respiracao['medium'], gravity['medium'])
 rule24 = ctrl.Rule(pressao['high'] & pulso['medium'] & respiracao['high'], gravity['very_high'])
 
 rule25 = ctrl.Rule(pressao['high'] & pulso['high'] & respiracao['low'], gravity['very_high']) #
