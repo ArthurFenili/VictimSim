@@ -224,8 +224,8 @@ class Rescuer(AbstractAgent):
         # Get the best chromosome from the final population
         best_chromosome = max(population, key=fitness)
 
-        print("Best sequence of objectives:", best_chromosome)
-        print("Total distance for the best sequence:", sum(fitness_values))
+        # print("Best sequence of objectives:", best_chromosome)
+        # print("Total distance for the best sequence:", sum(fitness_values))
 
         # You can visualize the best sequence of objectives on the map using the coordinates in `best_chromosome`.
 
@@ -255,81 +255,31 @@ class Rescuer(AbstractAgent):
                 for key, value in self.full_map.items():
                     if coord == key:
                         new_linha = list(coord)
-                        new_linha.insert(0, value[2][0])
-                        new_linha.append(value[2][7])
-                        if value[2][7] == 1:
+                        new_linha.insert(0, value[1])
+                        if value[1] == 1:
                             new_linha.append("critical")
-                        if value[2][7] == 2:
+                        if value[1] == 2:
                             new_linha.append("unstable")
-                        if value[2][7] == 3:
+                        if value[1] == 3:
                             new_linha.append("potentially stable")
-                        if value[2][7] == 4:
+                        if value[1] == 4:
                             new_linha.append("stable")
                         escritor_csv.writerow(new_linha)
                 
 
-        self.my_victims.insert(0, (0,0))
+        # self.my_victims.insert(0, (0,0))
 
-        self.my_victims.insert(0, (0,0))
+        # self.my_victims.insert(0, (0,0))
 
         melhor_rota = self.find_best_route()
         print(f"THE BEST ROUTE IS: {melhor_rota}")
-        # map_coordinates = []
-        # for key, value in self.full_map.items():
-        #     if value[0] == 'victim':
-        #         map_coordinates.append(key)
-
-        # # Função para calcular a distância entre duas coordenadas
-        # def distancia(coord1, coord2):
-        #     return np.sqrt((coord1[0]-coord2[0])**2 + (coord1[1]-coord2[1])**2) #ver o melhor calculo de distancia
-
-        #def aptidao(individual):
-        #    dist = distancia((0,0), self.my_victims[individual[0]])  # Distância da base à primeira coordenada
-        #    for i in range(len(individual)-1):
-        #        dist += distancia(self.my_victims[individual[i]], self.my_victims[individual[i+1]])
-        #    dist += distancia(self.my_victims[individual[-1]], (0,0))  # Distância da última coordenada à base
-        #    return dist,
-
-        # # Definindo o problema como um problema de minimização
-        # creator.create("FitnessMin", base.Fitness, weights=(-1.0,))
-        # creator.create("Individual", list, fitness=creator.FitnessMin)
-
-        # toolbox = base.Toolbox()
-
-        # # Inicialização
-        # toolbox.register("indices", random.sample, range(len(self.my_victims)), len(self.my_victims))
-        # toolbox.register("individual", tools.initIterate, creator.Individual, toolbox.indices)
-        # toolbox.register("population", tools.initRepeat, list, toolbox.individual)
-
-        # # Operadores
-        # toolbox.register("evaluate", aptidao)
-        # toolbox.register("mate", tools.cxOrdered)
-        # toolbox.register("mutate", tools.mutShuffleIndexes, indpb=0.05)
-        # toolbox.register("select", tools.selTournament, tournsize=3)
-
-        # # Parâmetros do algoritmo genético
-        # pop = toolbox.population(n=100)
-        # hof = tools.HallOfFame(1)
-        # stats = tools.Statistics(lambda ind: ind.fitness.values)
-        # stats.register("Avg", np.mean)
-        # stats.register("Std", np.std)
-        # stats.register("Min", np.min)
-        # stats.register("Max", np.max)
-
-        # # Executando o algoritmo genético
-        # pop, log = algorithms.eaSimple(pop, toolbox, cxpb=0.5, mutpb=0.2, ngen=40, 
-        #                                 stats=stats, halloffame=hof, verbose=True)
-
-        # # Imprimindo a melhor rota
-        # print("Melhor rota:", [self.my_victims[i] for i in hof[0]])
-        # melhor_rota =  [self.my_victims[i] for i in hof[0]]
-        # print(f"THE BEST ROUTE IS: {melhor_rota}")
+        
         x_aux, y_aux = self.x, self.y
         time_aux = self.rtime
         
         plan_aux = []
-        # #THE PLAN HAS TO HAVE ONLY DX,DY MOVEMENTS
 
+        # #THE PLAN HAS TO HAVE ONLY DX,DY MOVEMENTS
         for victim in melhor_rota:
             print(f"CURRENT VICTIM: {victim}")
             victim_path, victim_cost = self.shortest_path_with_costs((x_aux, y_aux), (victim[0], victim[1]))
