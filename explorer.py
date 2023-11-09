@@ -201,7 +201,7 @@ class Explorer(AbstractAgent):
                     peso = 2
                 elif vs[7] == 4:
                     peso = 1
-                self.coordinates_info[(self.x,self.y)] = ['victim' , peso]
+                self.coordinates_info[(self.x,self.y)] = ['victim' , peso, vs]
                 # print("exp: read vital signals of " + str(seq))
                 # print(vs)
 

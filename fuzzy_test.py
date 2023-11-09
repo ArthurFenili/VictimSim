@@ -57,10 +57,9 @@ with open(vs_file, 'r') as csvfile:
     for row in csvreader:
         number_of_victims += 1
         id_input.append(float(row[0]))
-        qpa_input.append(float(row[3]))
-        pulso_input.append(float(row[4]))
-        respiracao_input.append(float(row[5]))
-        classe_gravidade.append(float(row[7]))
+        qpa_input.append(float(row[1]))
+        pulso_input.append(float(row[2]))
+        respiracao_input.append(float(row[3]))
         
 
 # Step 2: Define Linguistic Variables
