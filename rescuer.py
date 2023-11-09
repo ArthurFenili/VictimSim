@@ -11,6 +11,7 @@ import numpy as np
 from sklearn.cluster import KMeans
 from deap import base, creator, tools, algorithms
 import heapq
+import csv
 
 ## Classe que define o Agente Rescuer com um plano fixo
 class Rescuer(AbstractAgent):
@@ -44,7 +45,9 @@ class Rescuer(AbstractAgent):
         victims' location. The rescuer becomes ACTIVE. From now,
         the deliberate method is called by the environment"""
         
-        # print(info_coord)
+        #print("INFOCOORD: ", info_coord)
+#info coord ta com as gravidades, colocar isso no my_victims
+
         #cada item no mapa contem as informações de uma coordenada
         #se o dicionario não está na lista de mapas coloca ele
         for key, value in info_coord.items():
@@ -58,6 +61,7 @@ class Rescuer(AbstractAgent):
             print("FULL MAP RECEIVED")
             print("=====================================")
             self.clusters = self.weighted_kmeans_clustering()
+            
             if len(self.clusters) < self.preferencia + 1:
                 self.my_cluster = []
             else:
@@ -241,6 +245,28 @@ class Rescuer(AbstractAgent):
         self.my_victims.reverse()
         print(f"SO THE VICTIMS I (CLUSTER {self.preferencia}) HAVE TO RESCUE ARE:")
         print(self.my_victims)
+
+        clustertxt = "cluster" + str(self.preferencia) + ".csv"
+        with open(clustertxt, "w", newline="") as arquivo_csv:
+            # Cria um objeto escritor CSV
+            escritor_csv = csv.writer(arquivo_csv)
+            
+            for coord in self.my_victims:
+                for key, value in self.full_map.items():
+                    if coord == key:
+                        new_linha = list(coord)
+                        new_linha.insert(0, value[2][0])
+                        new_linha.append(value[2][7])
+                        if value[2][7] == 1:
+                            new_linha.append("critical")
+                        if value[2][7] == 2:
+                            new_linha.append("unstable")
+                        if value[2][7] == 3:
+                            new_linha.append("potentially stable")
+                        if value[2][7] == 4:
+                            new_linha.append("stable")
+                        escritor_csv.writerow(new_linha)
+                
 
         self.my_victims.insert(0, (0,0))
 

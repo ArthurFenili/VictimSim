@@ -56,17 +56,17 @@ gravity_output = []
 situacao = []
 
 # Step 1: Read Data
-vs_file = os.path.join("datasets", "data_12x12_10vic", "sinais_teste_fuzzy.txt" )
+vs_file = os.path.join("datasets", "data_20x20_42vic", "sinais_vitais.txt" )
 file = "C:\\Users\\Maria\\projects\\helloworld\\VictimSim\\datasets\\data_12x12_10vic\\sinais_teste_fuzzy.txt"
 number_of_victims = 0
-with open(file, 'r') as csvfile:
+with open(vs_file, 'r') as csvfile:
     csvreader = csv.reader(csvfile)
     for row in csvreader:
         number_of_victims += 1
         id_input.append(float(row[0]))
-        qpa_input.append(float(row[1]))
-        pulso_input.append(float(row[2]))
-        respiracao_input.append(float(row[3]))
+        qpa_input.append(float(row[3]))
+        pulso_input.append(float(row[4]))
+        respiracao_input.append(float(row[5]))
         
 
 # Step 2: Define Linguistic Variables
