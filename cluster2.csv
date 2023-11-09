@@ -1,9 +1,14 @@
-19,0,-5,1,critical
-22,3,2,1,critical
-41,-3,-4,2,unstable
-23,-2,-6,2,unstable
-9,1,0,2,unstable
-32,0,-2,3,potentially stable
-8,5,-7,3,potentially stable
-42,1,1,4,stable
-26,3,0,4,stable
+37,18,5,1,critical
+64,32,12,1,critical
+40,21,9,1,critical
+60,31,13,1,critical
+57,29,-12,1,critical
+43,23,1,1,critical
+58,30,24,1,critical
+51,26,17,1,critical
+35,16,15,1,critical
+36,16,22,1,critical
+46,24,19,1,critical
+55,28,21,1,critical
+67,33,22,1,critical
+68,33,25,1,critical

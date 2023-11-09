@@ -35,6 +35,7 @@ class Rescuer(AbstractAgent):
         self.preferencia = preferencia
         self.my_cluster = []
         self.number_of_explorers = number_of_explorers
+        self.savedvictims = []
         
         # Starts in IDLE state.
         # It changes to ACTIVE when the map arrives
@@ -46,7 +47,6 @@ class Rescuer(AbstractAgent):
         the deliberate method is called by the environment"""
         
         #print("INFOCOORD: ", info_coord)
-#info coord ta com as gravidades, colocar isso no my_victims
 
         #cada item no mapa contem as informações de uma coordenada
         #se o dicionario não está na lista de mapas coloca ele
@@ -61,7 +61,6 @@ class Rescuer(AbstractAgent):
             print("FULL MAP RECEIVED")
             print("=====================================")
             self.clusters = self.weighted_kmeans_clustering()
-            
             if len(self.clusters) < self.preferencia + 1:
                 self.my_cluster = []
             else:
@@ -332,6 +331,7 @@ class Rescuer(AbstractAgent):
 
         for victim in melhor_rota:
             print(f"CURRENT VICTIM: {victim}")
+            self.savedvictims.append((victim[0], victim[1]))
             victim_path, victim_cost = self.shortest_path_with_costs((x_aux, y_aux), (victim[0], victim[1]))
             return_path_now, return_cost_now = self.shortest_path_with_costs((x_aux,y_aux), (self.x, self.y))
             return_path_later, return_cost_later = self.shortest_path_with_costs((victim[0], victim[1]), (self.x, self.y))
@@ -352,7 +352,7 @@ class Rescuer(AbstractAgent):
                 time_aux -= victim_cost
                 x_aux = victim[0]
                 y_aux = victim[1]
-        
+
         print(x_aux, y_aux)
         print(f"MY PLAN: {plan_aux}")
 
@@ -390,7 +390,28 @@ class Rescuer(AbstractAgent):
             # check if there is a victim at the current position
             seq = self.body.check_for_victim()
             if seq >= 0:
-                res = self.body.first_aid(seq) # True when rescued             
+                res = self.body.first_aid(seq) # True when rescued
+                if(res == True): 
+                    savedtxt = "salvas" + str(self.preferencia) + ".csv"
+                    with open(savedtxt, "w", newline="") as arquivo_csv:
+                        # Cria um objeto escritor CSV
+                        escritor_csv = csv.writer(arquivo_csv)
+                        
+                        for coord in self.savedvictims:
+                            for key, value in self.full_map.items():
+                                if coord == key:
+                                    new_linha = list(coord)
+                                    new_linha.insert(0, value[2][0])
+                                    new_linha.append(value[2][7])
+                                    if value[2][7] == 1:
+                                        new_linha.append("critical")
+                                    if value[2][7] == 2:
+                                        new_linha.append("unstable")
+                                    if value[2][7] == 3:
+                                        new_linha.append("potentially stable")
+                                    if value[2][7] == 4:
+                                        new_linha.append("stable")
+                                    escritor_csv.writerow(new_linha)         
 
         return True
 
