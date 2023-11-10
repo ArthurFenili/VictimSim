@@ -255,7 +255,7 @@ class Rescuer(AbstractAgent):
                     if coord == key:
                         new_linha = list(coord)
                         new_linha.insert(0, value[2][0])
-                        new_linha.append(value[2][7])
+                        new_linha.append(0)
                         if value[2][7] == 1:
                             new_linha.append("critical")
                         if value[2][7] == 2:
@@ -267,9 +267,7 @@ class Rescuer(AbstractAgent):
                         escritor_csv.writerow(new_linha)
                 
 
-        self.my_victims.insert(0, (0,0))
-
-        self.my_victims.insert(0, (0,0))
+        # self.my_victims.insert(0, (0,0))
 
         melhor_rota = self.find_best_route()
         print(f"THE BEST ROUTE IS: {melhor_rota}")
