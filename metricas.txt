@@ -1,0 +1,48 @@
+------------------------------------------------------------
+GENERAL METRICS
+
+Reference dataset: file_target.txt Length: 225
+Predict          : salvas.csv Length: 163
+Matching rows    : 163
+
+------------------------------------------------------------
+REGRESSOR METRICS
+Root Mean Square Error (RMSE) for matching rows: 42.53
+
+------------------------------------------------------------
+CLASSIFICATION METRICS
+Confusion Matrix:
+[[12 10  0  0]
+ [10 79 11  8]
+ [ 0  5 16 12]
+ [ 0  0  0  0]]
+
+Accuracy: 0.656441717791411
+
+Classification Report:
+              precision    recall  f1-score   support
+
+     Critico       0.55      0.55      0.55        22
+    Instavel       0.84      0.73      0.78       108
+ Pot Estavel       0.59      0.48      0.53        33
+     Estavel       0.00      0.00      0.00         0
+
+    accuracy                           0.66       163
+   macro avg       0.49      0.44      0.47       163
+weighted avg       0.75      0.66      0.70       163
+
+
+------------------------------------------------------------
+SPECIFIC METRICS
+
+   Critical victims   (1) =  22 out of 33 (66.7)%
+   Instable victims   (2) = 108 out of 142 (76.1)%
+   Pot. inst. victims (3) =  33 out of 49 (67.3)%
+   Stable victims     (4) =   0 out of 1 (0.0)%
+   --------------------------------------
+   Total of victims  = 163 (72.44%)
+
+   Weighted victims per severity = 35.73
+
+   Sum of gravities of matched victims = 6503.01 of a total of 8980.41
+     % of gravities of matched victims = 0.72

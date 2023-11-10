@@ -14,7 +14,7 @@ from sklearn.metrics import precision_score, recall_score, f1_score, accuracy_sc
 from sklearn.model_selection import KFold
 
 
-def determine_status(pressure, pulse, respiration):
+def determine_status(pressure, pulse, respiration, id):
     # Input values
     simulator.input['qualidade_pressao'] = pressure
     simulator.input['pulso'] = pulse
@@ -44,7 +44,7 @@ def determine_status(pressure, pulse, respiration):
 
     
     # You can print or return the status if needed
-    #print(f"Pressure: {pressure}, Pulse: {pulse}, Respiration: {respiration}, Status: {situacao[-1]}, Gravidade: {gravidade[-1]}")
+    print(f"ID: {id}, Pressure: {pressure}, Pulse: {pulse}, Respiration: {respiration}, Status: {situacao[-1]}, Gravidade: {gravidade[-1]}")
 
 id_input = []
 qpa_input = []
@@ -146,24 +146,28 @@ for i in range(number_of_victims):
     pressure_value = qpa_input[i]
     pulse_value = pulso_input[i]
     respiration_value = respiracao_input[i]
-    determine_status(pressure_value, pulse_value, respiration_value)
+    id_value = id_input[i]
+    determine_status(pressure_value, pulse_value, respiration_value, id_value)
 
 statustxt = "status.csv"
 with open(statustxt, "w", newline="") as arquivo_csv:
     # Cria um objeto escritor CSV
     escritor_csv = csv.writer(arquivo_csv)
     
+    i = 0
     for status in situacao:
         new_linha = []
+        new_linha.append(int(id_input[i]))
         if status == "Critical":
-            new_linha.append(1)
+            new_linha.append("Critical")
         if status == "Unstable":
-            new_linha.append(2)
+            new_linha.append("Unstable")
         if status == "Potentially Stable":
-            new_linha.append(3)
+            new_linha.append("Potentially Stable")
         if status == "Stable":
-            new_linha.append(4)
+            new_linha.append("Stable")
         escritor_csv.writerow(new_linha)        
+        i += 1 
 
 
     
@@ -186,46 +190,3 @@ X = np.column_stack((qpa_input, pulso_input, respiracao_input))
 
 # Classes reais
 y = classe_gravidade
-
-# Inicialize listas para armazenar métricas de desempenho
-precisions = []
-recalls = []
-f1_scores = []
-accuracies = []
-
-for train_index, test_index in kf.split(X):
-    X_train, X_test = X[train_index], X[test_index]
-    y_train, y_test = [y[i] for i in train_index], [y[i] for i in test_index]
-
-    # Crie um novo sistema de controle para cada fold (se necessário)
-    system = ctrl.ControlSystem([rule1, rule2, rule3, rule4, rule5, rule6, rule7, rule8, rule9, rule10, rule11, rule12, rule13, rule14, rule15, rule16, rule17, rule18, rule19, rule20, rule21, rule22, rule23, rule24, rule25, rule26, rule27])
-    simulator = ctrl.ControlSystemSimulation(system)
-
-    # Realize a classificação para o fold atual
-    predicted_gravity = []
-    for i in range(len(X_test)):
-        pressure_value, pulse_value, respiration_value = X_test[i]
-        determine_status(pressure_value, pulse_value, respiration_value)
-        predicted_gravity.append(gravidade[-1])
-
-    # Calcule as métricas para este fold
-    precision = precision_score(y_test, predicted_gravity, average='weighted')
-    recall = recall_score(y_test, predicted_gravity, average='weighted')
-    f1 = f1_score(y_test, predicted_gravity, average='weighted')
-    accuracy = accuracy_score(y_test, predicted_gravity)
-
-    precisions.append(precision)
-    recalls.append(recall)
-    f1_scores.append(f1)
-    accuracies.append(accuracy)
-
-# Calcule a média das métricas de desempenho em todos os folds
-mean_precision = np.mean(precisions)
-mean_recall = np.mean(recalls)
-mean_f1 = np.mean(f1_scores)
-mean_accuracy = np.mean(accuracies)
-
-print(f"Mean Precision: {mean_precision}")
-print(f"Mean Recall: {mean_recall}")
-print(f"Mean F-measure: {mean_f1}")
-print(f"Mean Accuracy: {mean_accuracy}")
