@@ -12,6 +12,7 @@ from sklearn.cluster import KMeans
 from deap import base, creator, tools, algorithms
 import heapq
 import csv
+from fuzzy_test import Fuzzy
 
 ## Classe que define o Agente Rescuer com um plano fixo
 class Rescuer(AbstractAgent):
@@ -36,6 +37,7 @@ class Rescuer(AbstractAgent):
         self.my_cluster = []
         self.number_of_explorers = number_of_explorers
         self.savedvictims = []
+        self.objectFuzzy = Fuzzy()
         
         # Starts in IDLE state.
         # It changes to ACTIVE when the map arrives
@@ -60,6 +62,9 @@ class Rescuer(AbstractAgent):
             self.body.set_state(PhysAgent.ACTIVE)
             print("FULL MAP RECEIVED")
             print("=====================================")
+            #       criar um arquivo com as vitimas encontradas e passar como parametro pro fuzzy
+            print("FULLMAPITEMS: ", self.full_map)
+            self.objectFuzzy.fuzzy()
             self.clusters = self.weighted_kmeans_clustering()
             if len(self.clusters) < self.preferencia + 1:
                 self.my_cluster = []
