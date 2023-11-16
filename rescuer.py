@@ -4,6 +4,7 @@
 
 import os
 import random
+import math
 from abstract_agent import AbstractAgent
 from physical_agent import PhysAgent
 from abc import ABC, abstractmethod
@@ -61,11 +62,12 @@ class Rescuer(AbstractAgent):
             print("FULL MAP RECEIVED")
             print("=====================================")
             self.clusters = self.weighted_kmeans_clustering()
-            
+            print(f"CLUSTERS: {self.clusters}")
             if len(self.clusters) < self.preferencia + 1:
                 self.my_cluster = []
             else:
                 self.my_cluster = self.clusters[self.preferencia] 
+                print(f"MY CLUSTER: {self.my_cluster} with size {len(self.my_cluster)}")
 
             # planning
             self.my_plan = self.__planner()         
@@ -83,23 +85,23 @@ class Rescuer(AbstractAgent):
         for key, value in self.full_map.items():
             if value[0] == 'victim':
                 number_of_victims += 1
-                weights.append(value[1])
+                weights.append(value[2])
                 coordinates.append(key)
 
         for key, value in self.full_map.items():
             if value[0] != 'obstacle':
                 self.valid_path.append(key)
 
-        print(f"Total de caminhos explorados: {len(self.full_map)}")
+        print(f"Total de caminhos explorados: {len(self.valid_path)}")
+        print(f"Coordenadas das vítimas: {coordinates}")
         # print(weights)
         # print(coordinates)
         # Normalize weights to sum up to 1 (optional)
         total_weight = sum(weights)
         weights = [weight / total_weight for weight in weights]
-
+        print("the number of victims:", number_of_victims)
         # Combine coordinates and weights into a single array
         data = np.column_stack((coordinates, weights))
-        print(data)
         if number_of_victims < self.number_of_explorers:
             self.number_of_explorers = number_of_victims
 
@@ -173,6 +175,8 @@ class Rescuer(AbstractAgent):
     def find_best_route(self):
         # Define your objectives as a list of coordinates (e.g., (x, y))
         objectives = self.my_victims
+        if len(objectives) < 2:
+            return objectives
 
         # Define the number of individuals in the population
         population_size = 500
@@ -190,12 +194,13 @@ class Rescuer(AbstractAgent):
             for i in range(len(chromosome) - 1):
                 x1, y1 = chromosome[i]
                 x2, y2 = chromosome[i + 1]
-                distance = ((x2 - x1) ** 2 + (y2 - y1) ** 2) ** 0.5
+                distance = math.sqrt((x2 - x1)**2 + (y2 - y1)**2)
                 total_distance += distance
             return 1 / total_distance  # Inverse of distance as a fitness
 
         # Generate an initial population
         population = [random.sample(objectives, len(objectives)) for _ in range(population_size)]
+        counter = 0
 
         # Main genetic algorithm loop
         for generation in range(max_generations):
@@ -209,18 +214,21 @@ class Rescuer(AbstractAgent):
             new_population = []
             for _ in range(population_size):
                 parent1, parent2 = random.sample(parents, 2)
-                child = parent1[:]
-                
+                selected_parent = random.choice([parent1, parent2])
+                child = selected_parent.copy()
+
                 if random.random() < mutation_rate:
                     # Apply mutation by swapping two objectives
                     idx1, idx2 = random.sample(range(len(child)), 2)
                     child[idx1], child[idx2] = child[idx2], child[idx1]
 
                 new_population.append(child)
-
             # Replace the old population with the new population
+            if population == new_population:
+                counter += 1
+                if counter == 10:
+                    break
             population = new_population
-
         # Get the best chromosome from the final population
         best_chromosome = max(population, key=fitness)
 
@@ -256,13 +264,13 @@ class Rescuer(AbstractAgent):
                     if coord == key:
                         new_linha = list(coord)
                         new_linha.insert(0, value[1])
-                        if value[1] == 1:
+                        if value[2] == 6:
                             new_linha.append("critical")
-                        if value[1] == 2:
+                        if value[2] == 3:
                             new_linha.append("unstable")
-                        if value[1] == 3:
+                        if value[2] == 2:
                             new_linha.append("potentially stable")
-                        if value[1] == 4:
+                        if value[2] == 1:
                             new_linha.append("stable")
                         escritor_csv.writerow(new_linha)
                 
