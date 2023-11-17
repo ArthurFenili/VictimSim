@@ -24,6 +24,7 @@ class Fuzzy:
         self.situacao = []
         self.classe_gravidade = []
         self.gravidade = []
+        self.new_gravity = "new_gravity.csv"
 
     def determine_status(self, pressure, pulse, respiration, id):
         # Input values
@@ -57,20 +58,29 @@ class Fuzzy:
         # You can print or return the status if needed
         print(f"ID: {id}, Pressure: {pressure}, Pulse: {pulse}, Respiration: {respiration}, Status: {self.situacao[-1]}, Gravidade: {self.gravidade[-1]}")
 
-    def fuzzy(self):
+        with open(self.new_gravity, "a", newline="") as arquivo_csv:
+            # Cria um objeto escritor CSV
+            escritor_csv = csv.writer(arquivo_csv)
+            new_linha = []
+            new_linha.append(id)
+            new_linha.append(self.gravidade[-1])
+            escritor_csv.writerow(new_linha)     
+
+    def fuzzy(self, vs_file):
+        with open(self.new_gravity, "w", newline="") as arquivo_csv:
+            pass  # Empty block just to create an empty file
         # Step 1: Read Data
-        print("FUUUUZZZYYYYYYY")
-        vs_file = os.path.join("datasets", "data_20x20_42vic", "sinais_vitais.txt" )
+        # vs_file = os.path.join("datasets", "data_20x20_42vic", "sinais_vitais.txt" )
         number_of_victims = 0
         with open(vs_file, 'r') as csvfile:
             csvreader = csv.reader(csvfile)
             for row in csvreader:
                 number_of_victims += 1
-                self.id_input.append(float(row[0]))
-                self.qpa_input.append(float(row[3]))
-                self.pulso_input.append(float(row[4]))
-                self.respiracao_input.append(float(row[5]))
-                self.classe_gravidade.append(float(row[7]))
+                self.id_input.append(float(row[2]))
+                self.qpa_input.append(float(row[5]))
+                self.pulso_input.append(float(row[6]))
+                self.respiracao_input.append(float(row[7]))
+                self.classe_gravidade.append(float(row[9]))
                 
 
         # Step 2: Define Linguistic Variables

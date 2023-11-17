@@ -63,8 +63,29 @@ class Rescuer(AbstractAgent):
             print("FULL MAP RECEIVED")
             print("=====================================")
             #       criar um arquivo com as vitimas encontradas e passar como parametro pro fuzzy
-            print("FULLMAPITEMS: ", self.full_map)
-            self.objectFuzzy.fuzzy()
+            print("FULLMAP: ", self.full_map)
+            if(self.preferencia == 0):
+                found_vs = "found_vs.csv"
+                with open(found_vs, "w", newline="") as arquivo_csv:
+                    # Cria um objeto escritor CSV
+                    escritor_csv = csv.writer(arquivo_csv)
+                    for key, value in self.full_map.items():
+                        if value[0] == 'victim':
+                            new_linha = []
+                            new_linha.append(key[0])
+                            new_linha.append(key[1])
+                            new_linha.append(value[2][0])
+                            new_linha.append(value[2][1])
+                            new_linha.append(value[2][2])
+                            new_linha.append(value[2][3])
+                            new_linha.append(value[2][4])
+                            new_linha.append(value[2][5])
+                            new_linha.append(value[2][6])
+                            new_linha.append(value[2][7])
+                            escritor_csv.writerow(new_linha)     
+
+                self.objectFuzzy.fuzzy(found_vs)
+            
             self.clusters = self.weighted_kmeans_clustering()
             if len(self.clusters) < self.preferencia + 1:
                 self.my_cluster = []
@@ -84,10 +105,22 @@ class Rescuer(AbstractAgent):
         weights = []
         coordinates = []
         number_of_victims = 0
+        found_vs_file = os.path.join("new_gravity.csv")
+        with open(found_vs_file, 'r') as csvfile:
+            csvreader = csv.reader(csvfile)
+            for row in csvreader:
+                number_of_victims += 1
+                if(row[1] == '1'):
+                    weights.append(6)
+                if(row[1] == '2'):
+                    weights.append(3)
+                if(row[1] == '3'):
+                    weights.append(2)
+                if(row[1] == '4'):
+                    weights.append(1)
+
         for key, value in self.full_map.items():
             if value[0] == 'victim':
-                number_of_victims += 1
-                weights.append(value[1])
                 coordinates.append(key)
 
         for key, value in self.full_map.items():
