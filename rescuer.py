@@ -4,7 +4,6 @@
 
 import os
 import random
-import math
 from abstract_agent import AbstractAgent
 from physical_agent import PhysAgent
 from abc import ABC, abstractmethod
@@ -63,10 +62,6 @@ class Rescuer(AbstractAgent):
             self.body.set_state(PhysAgent.ACTIVE)
             print("FULL MAP RECEIVED")
             print("=====================================")
-<<<<<<< HEAD
-            self.clusters = self.weighted_kmeans_clustering()
-            print(f"CLUSTERS: {self.clusters}")
-=======
             #       criar um arquivo com as vitimas encontradas e passar como parametro pro fuzzy
             print("FULLMAP: ", self.full_map)
             if(self.preferencia == 0):
@@ -92,12 +87,10 @@ class Rescuer(AbstractAgent):
                 self.objectFuzzy.fuzzy(found_vs)
             
             self.clusters = self.weighted_kmeans_clustering()
->>>>>>> salvascsv
             if len(self.clusters) < self.preferencia + 1:
                 self.my_cluster = []
             else:
                 self.my_cluster = self.clusters[self.preferencia] 
-                print(f"MY CLUSTER: {self.my_cluster} with size {len(self.my_cluster)}")
 
             # planning
             self.my_plan = self.__planner()         
@@ -128,27 +121,22 @@ class Rescuer(AbstractAgent):
 
         for key, value in self.full_map.items():
             if value[0] == 'victim':
-<<<<<<< HEAD
-                number_of_victims += 1
-                weights.append(value[2])
-=======
->>>>>>> salvascsv
                 coordinates.append(key)
 
         for key, value in self.full_map.items():
             if value[0] != 'obstacle':
                 self.valid_path.append(key)
 
-        print(f"Total de caminhos explorados: {len(self.valid_path)}")
-        print(f"Coordenadas das vítimas: {coordinates}")
+        print(f"Total de caminhos explorados: {len(self.full_map)}")
         # print(weights)
         # print(coordinates)
         # Normalize weights to sum up to 1 (optional)
         total_weight = sum(weights)
         weights = [weight / total_weight for weight in weights]
-        print("the number of victims:", number_of_victims)
+
         # Combine coordinates and weights into a single array
         data = np.column_stack((coordinates, weights))
+        print(data)
         if number_of_victims < self.number_of_explorers:
             self.number_of_explorers = number_of_victims
 
@@ -222,8 +210,6 @@ class Rescuer(AbstractAgent):
     def find_best_route(self):
         # Define your objectives as a list of coordinates (e.g., (x, y))
         objectives = self.my_victims
-        if len(objectives) < 2:
-            return objectives
 
         # Define the number of individuals in the population
         population_size = 500
@@ -241,13 +227,12 @@ class Rescuer(AbstractAgent):
             for i in range(len(chromosome) - 1):
                 x1, y1 = chromosome[i]
                 x2, y2 = chromosome[i + 1]
-                distance = math.sqrt((x2 - x1)**2 + (y2 - y1)**2)
+                distance = ((x2 - x1) ** 2 + (y2 - y1) ** 2) ** 0.5
                 total_distance += distance
             return 1 / total_distance  # Inverse of distance as a fitness
 
         # Generate an initial population
         population = [random.sample(objectives, len(objectives)) for _ in range(population_size)]
-        counter = 0
 
         # Main genetic algorithm loop
         for generation in range(max_generations):
@@ -261,26 +246,23 @@ class Rescuer(AbstractAgent):
             new_population = []
             for _ in range(population_size):
                 parent1, parent2 = random.sample(parents, 2)
-                selected_parent = random.choice([parent1, parent2])
-                child = selected_parent.copy()
-
+                child = parent1[:]
+                
                 if random.random() < mutation_rate:
                     # Apply mutation by swapping two objectives
                     idx1, idx2 = random.sample(range(len(child)), 2)
                     child[idx1], child[idx2] = child[idx2], child[idx1]
 
                 new_population.append(child)
+
             # Replace the old population with the new population
-            if population == new_population:
-                counter += 1
-                if counter == 10:
-                    break
             population = new_population
+
         # Get the best chromosome from the final population
         best_chromosome = max(population, key=fitness)
 
-        # print("Best sequence of objectives:", best_chromosome)
-        # print("Total distance for the best sequence:", sum(fitness_values))
+        print("Best sequence of objectives:", best_chromosome)
+        print("Total distance for the best sequence:", sum(fitness_values))
 
         # You can visualize the best sequence of objectives on the map using the coordinates in `best_chromosome`.
 
@@ -310,40 +292,79 @@ class Rescuer(AbstractAgent):
                 for key, value in self.full_map.items():
                     if coord == key:
                         new_linha = list(coord)
-<<<<<<< HEAD
-                        new_linha.insert(0, value[1])
-                        if value[2] == 6:
-=======
                         new_linha.insert(0, value[2][0])
                         new_linha.append(0)
                         if value[2][7] == 1:
->>>>>>> salvascsv
                             new_linha.append("critical")
-                        if value[2] == 3:
+                        if value[2][7] == 2:
                             new_linha.append("unstable")
-                        if value[2] == 2:
+                        if value[2][7] == 3:
                             new_linha.append("potentially stable")
-                        if value[2] == 1:
+                        if value[2][7] == 4:
                             new_linha.append("stable")
                         escritor_csv.writerow(new_linha)
                 
 
         # self.my_victims.insert(0, (0,0))
-<<<<<<< HEAD
-
-        # self.my_victims.insert(0, (0,0))
-=======
->>>>>>> salvascsv
 
         melhor_rota = self.find_best_route()
         print(f"THE BEST ROUTE IS: {melhor_rota}")
-        
+        # map_coordinates = []
+        # for key, value in self.full_map.items():
+        #     if value[0] == 'victim':
+        #         map_coordinates.append(key)
+
+        # # Função para calcular a distância entre duas coordenadas
+        # def distancia(coord1, coord2):
+        #     return np.sqrt((coord1[0]-coord2[0])**2 + (coord1[1]-coord2[1])**2) #ver o melhor calculo de distancia
+
+        #def aptidao(individual):
+        #    dist = distancia((0,0), self.my_victims[individual[0]])  # Distância da base à primeira coordenada
+        #    for i in range(len(individual)-1):
+        #        dist += distancia(self.my_victims[individual[i]], self.my_victims[individual[i+1]])
+        #    dist += distancia(self.my_victims[individual[-1]], (0,0))  # Distância da última coordenada à base
+        #    return dist,
+
+        # # Definindo o problema como um problema de minimização
+        # creator.create("FitnessMin", base.Fitness, weights=(-1.0,))
+        # creator.create("Individual", list, fitness=creator.FitnessMin)
+
+        # toolbox = base.Toolbox()
+
+        # # Inicialização
+        # toolbox.register("indices", random.sample, range(len(self.my_victims)), len(self.my_victims))
+        # toolbox.register("individual", tools.initIterate, creator.Individual, toolbox.indices)
+        # toolbox.register("population", tools.initRepeat, list, toolbox.individual)
+
+        # # Operadores
+        # toolbox.register("evaluate", aptidao)
+        # toolbox.register("mate", tools.cxOrdered)
+        # toolbox.register("mutate", tools.mutShuffleIndexes, indpb=0.05)
+        # toolbox.register("select", tools.selTournament, tournsize=3)
+
+        # # Parâmetros do algoritmo genético
+        # pop = toolbox.population(n=100)
+        # hof = tools.HallOfFame(1)
+        # stats = tools.Statistics(lambda ind: ind.fitness.values)
+        # stats.register("Avg", np.mean)
+        # stats.register("Std", np.std)
+        # stats.register("Min", np.min)
+        # stats.register("Max", np.max)
+
+        # # Executando o algoritmo genético
+        # pop, log = algorithms.eaSimple(pop, toolbox, cxpb=0.5, mutpb=0.2, ngen=40, 
+        #                                 stats=stats, halloffame=hof, verbose=True)
+
+        # # Imprimindo a melhor rota
+        # print("Melhor rota:", [self.my_victims[i] for i in hof[0]])
+        # melhor_rota =  [self.my_victims[i] for i in hof[0]]
+        # print(f"THE BEST ROUTE IS: {melhor_rota}")
         x_aux, y_aux = self.x, self.y
         time_aux = self.rtime
         
         plan_aux = []
-
         # #THE PLAN HAS TO HAVE ONLY DX,DY MOVEMENTS
+
         for victim in melhor_rota:
             print(f"CURRENT VICTIM: {victim}")
             self.savedvictims.append((victim[0], victim[1]))
@@ -429,4 +450,3 @@ class Rescuer(AbstractAgent):
                                     escritor_csv.writerow(new_linha)         
 
         return True
-
