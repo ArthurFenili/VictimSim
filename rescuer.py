@@ -432,21 +432,29 @@ class Rescuer(AbstractAgent):
                     with open(savedtxt, "w", newline="") as arquivo_csv:
                         # Cria um objeto escritor CSV
                         escritor_csv = csv.writer(arquivo_csv)
+
+
+                        found_vs_file = os.path.join("new_gravity.csv")
+                        with open(found_vs_file, 'r') as csvfile:
+                            csvreader = csv.reader(csvfile)
+                            i = 0
+                            for coord in self.savedvictims:
+                                for key, value in self.full_map.items():
+                                    if coord == key:
+                                        new_linha = list(coord)
+                                        new_linha.insert(0, value[2][0])
+                                        new_linha.append(0)
+                                        if value[2][7] == 1:
+                                            new_linha.append(1)
+                                        if value[2][7] == 2:
+                                            new_linha.append(2)
+                                        if value[2][7] == 3:
+                                            new_linha.append(3)
+                                        if value[2][7] == 4:
+                                            new_linha.append(4)
+                                        escritor_csv.writerow(new_linha)  
+                                i += 1  
                         
-                        for coord in self.savedvictims:
-                            for key, value in self.full_map.items():
-                                if coord == key:
-                                    new_linha = list(coord)
-                                    new_linha.insert(0, value[2][0])
-                                    new_linha.append(value[2][7])
-                                    if value[2][7] == 1:
-                                        new_linha.append("critical")
-                                    if value[2][7] == 2:
-                                        new_linha.append("unstable")
-                                    if value[2][7] == 3:
-                                        new_linha.append("potentially stable")
-                                    if value[2][7] == 4:
-                                        new_linha.append("stable")
-                                    escritor_csv.writerow(new_linha)         
+                        
 
         return True

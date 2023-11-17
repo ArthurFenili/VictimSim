@@ -16,7 +16,7 @@ from sklearn.metrics import confusion_matrix, classification_report, accuracy_sc
 
 # Input CSV file names
 file_target = 'file_target.txt'
-file_predict = 'salvas.csv'
+file_predict = 'salvas.txt'
 target_len = 0
 predict_len = 0
 
