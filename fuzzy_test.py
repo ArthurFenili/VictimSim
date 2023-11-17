@@ -9,7 +9,7 @@ from sklearn.model_selection import KFold
 
 class FuzzySystem:
     def __init__(self, lista_das_infos_das_vitimas):
-        print("lista_das_infos_das_vitimas: ", lista_das_infos_das_vitimas)
+        #print("lista_das_infos_das_vitimas: ", lista_das_infos_das_vitimas)
         self.number_of_victims = 0
         self.lista_das_infos_das_vitimas = lista_das_infos_das_vitimas
         self.resultados = []
@@ -21,9 +21,10 @@ class FuzzySystem:
         self.classe_gravidade = []
         for vitima_info in lista_das_infos_das_vitimas:
             self.number_of_victims += 1
-            self.qpa_input.append(float(vitima_info[2]))
-            self.pulso_input.append(float(vitima_info[3]))
-            self.respiracao_input.append(float(vitima_info[4]))
+            #print("vitima_info: ", vitima_info)
+            self.qpa_input.append(float(vitima_info[3]))
+            self.pulso_input.append(float(vitima_info[4]))
+            self.respiracao_input.append(float(vitima_info[5]))
         self.define_linguistic_variables()
         self.define_pertinencias()
 
@@ -136,73 +137,9 @@ class FuzzySystem:
         simulator = ctrl.ControlSystemSimulation(system)
 
         for i in range(self.number_of_victims):
-            #print(qpa_input[i], pulso_input[i], respiracao_input[i])
             pressure_value = self.qpa_input[i]
             pulse_value = self.pulso_input[i]
             respiration_value = self.respiracao_input[i]
             self.determine_status(pressure_value, pulse_value, respiration_value, simulator)
             
-            
-        # precision = precision_score(self.classe_gravidade, self.resultados, average='weighted')
-        # recall = recall_score(self.classe_gravidade, self.resultados, average='weighted')
-        # f1 = f1_score(self.classe_gravidade, self.resultados, average='weighted')
-        # accuracy = accuracy_score(self.classe_gravidade, self.resultados)
-
-        # print(f"Precision: {precision}")
-        # print(f"Recall: {recall}")
-        # print(f"F-measure: {f1}")
-        # print(f"Acurácia: {accuracy}")
-
-        # num_folds = 5
-        # kf = KFold(n_splits=num_folds)
-
-        # # Dados de entrada
-        # X = np.column_stack((self.qpa_input, self.pulso_input, self.respiracao_input))
-
-        # # Classes reais
-        # y = self.classe_gravidade
-
-        # # Inicialize listas para armazenar métricas de desempenho
-        # precisions = []
-        # recalls = []
-        # f1_scores = []
-        # accuracies = []
-
-        # for train_index, test_index in kf.split(X):
-        #     X_train, X_test = X[train_index], X[test_index]
-        #     y_train, y_test = [y[i] for i in train_index], [y[i] for i in test_index]
-
-        #     # Crie um novo sistema de controle para cada fold (se necessário)
-        #     system = ctrl.ControlSystem([rule1, rule2, rule3, rule4, rule5, rule6, rule7, rule8, rule9, rule10, rule11, rule12, rule13, rule14, rule15, rule16, rule17, rule18, rule19, rule20, rule21, rule22, rule23, rule24, rule25, rule26, rule27])
-        #     simulator = ctrl.ControlSystemSimulation(system)
-
-        #     # Realize a classificação para o fold atual
-        #     predicted_gravity = []
-        #     for i in range(len(X_test)):
-        #         pressure_value, pulse_value, respiration_value = X_test[i]
-        #         self.determine_status(pressure_value, pulse_value, respiration_value, simulator)
-        #         predicted_gravity.append(self.resultados[-1])
-
-        #     # Calcule as métricas para este fold
-        #     precision = precision_score(y_test, predicted_gravity, average='weighted')
-        #     recall = recall_score(y_test, predicted_gravity, average='weighted')
-        #     f1 = f1_score(y_test, predicted_gravity, average='weighted')
-        #     accuracy = accuracy_score(y_test, predicted_gravity)
-
-        #     precisions.append(precision)
-        #     recalls.append(recall)
-        #     f1_scores.append(f1)
-        #     accuracies.append(accuracy)
-
-        # # Calcule a média das métricas de desempenho em todos os folds
-        # mean_precision = np.mean(precisions)
-        # mean_recall = np.mean(recalls)
-        # mean_f1 = np.mean(f1_scores)
-        # mean_accuracy = np.mean(accuracies)
-
-        print(self.resultados)
-        # print(f"Mean Precision: {mean_precision}")
-        # print(f"Mean Recall: {mean_recall}")
-        # print(f"Mean F-measure: {mean_f1}")
-        # print(f"Mean Accuracy: {mean_accuracy}")
         return self.resultados

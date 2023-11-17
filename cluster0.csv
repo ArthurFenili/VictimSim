@@ -1,15 +1,14 @@
-6,-2,9
-3,3,9,potentially stable
-3,3,6,potentially stable
-3,4,4,potentially stable
-3,0,12,potentially stable
-3,0,9,potentially stable
-3,0,6,potentially stable
-2,-3,6,unstable
-2,3,2,unstable
-2,3,10,unstable
-1,-1,6,critical
-1,-1,3,critical
-1,3,7,critical
-1,5,8,critical
-1,1,12,critical
+37,18,5,unstable
+64,32,12,unstable
+60,31,13,unstable
+51,26,17,unstable
+36,16,22,unstable
+46,24,19,unstable
+55,28,21,unstable
+67,33,22,unstable
+68,33,25,unstable
+57,29,-12,unstable
+43,23,1,unstable
+58,30,24,potentially stable
+40,21,9,stable
+35,16,15,stable

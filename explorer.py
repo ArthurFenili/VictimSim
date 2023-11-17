@@ -31,6 +31,7 @@ class Explorer(AbstractAgent):
         self.visited_cells = []    # cells already visited
         self.movements_cost = {}   # cost of each movement
         self.mapa = []             # map of the environment
+        self.found_victims_coords = [] # list of found victims coordinates
         self.found_victims_infos = [] # list of found victims infos
         self.coordinates_info = {}      # coordinates information
         self.x = 0  # initial relative x position
@@ -117,31 +118,32 @@ class Explorer(AbstractAgent):
  
         # No more actions, time almost ended
         if self.returning:
-            if self.rtime <= 5.0 and self.body.at_base(): 
+            if self.rtime <= 5.0 and self.body.at_base():
                 # time to wake up the rescuer
                 # pass the walls and the victims (here, they're empty)
                 #print(self.mapa)
+
                 fuzzy = FuzzySystem(self.found_victims_infos)
                 gravidades = fuzzy.define_rules_and_infere_system()
                 i = 0
                 for victim in self.found_victims_infos:
                     victim.append(gravidades[i])
                     i += 1
-                print(self.found_victims_infos)
+                
 
-                peso = 0
+                peso = 1
                 i = 0
                 for key, value in self.coordinates_info.items():
                     if value[0] == 'victim':
-                        if gravidades[i] == 1:
+                        if self.found_victims_infos[i][8] == 1:
                             peso = 6
-                        elif gravidades[i] == 2:
+                        elif self.found_victims_infos[i][8] == 2:
                             peso = 3
-                        elif gravidades[i] == 3:
+                        elif self.found_victims_infos[i][8] == 3:
                             peso = 2
-                        elif gravidades[i] == 4:
+                        elif self.found_victims_infos[i][8] == 4:
                             peso = 1
-                        self.coordinates_info[(key)] = ['victim' , peso]
+                        self.coordinates_info[(key)] = ['victim', self.found_victims_infos[i][0], peso]
                         i += 1
                 
                 print(self.coordinates_info)
@@ -210,34 +212,23 @@ class Explorer(AbstractAgent):
             self.coordinates_info[(self.x,self.y)] = ['obstacle' , 0]
             # print(self.name() + ": wall or grid limit reached")
 
-        if result == PhysAgent.EXECUTED:
+
+        if result == PhysAgent.EXECUTED and (self.x,self.y) not in self.visited_cells:
             # check for victim returns -1 if there is no victim or the sequential
             # the sequential number of a found victim
             self.coordinates_info[(self.x,self.y)] = ['path' , 0]
             seq = self.body.check_for_victim()
-            if seq >= 0:
-                self.rtime -= self.COST_READ
-                vs = self.body.read_vital_signals(seq)
-                vs = vs[1:6]
-                #le os sinais vitais da vitima para posteriormente calcular a gravidade
-                
-                # if vs[7] == 1:
-                #     peso = 6
-                # elif vs[7] == 2:
-                #     peso = 3
-                # elif vs[7] == 3:
-                #     peso = 2
-                # elif vs[7] == 4:
-                #     peso = 1
-                self.coordinates_info[(self.x,self.y)] = ['victim']
-                self.found_victims_infos.append(vs)
+            if seq != -1:
+                if (self.x,self.y) not in self.found_victims_coords:
+                    self.found_victims_coords.append((self.x,self.y))
+                    self.rtime -= self.COST_READ
+                    vs = self.body.read_vital_signals(seq)
+                    print(f"{self.NAME} found victim {seq} at {self.x,self.y} with vital signals {vs, len(vs)}")
+                    #le os sinais vitais da vitima para posteriormente calcular a gravidade
+      
+                    self.coordinates_info[(self.x,self.y)] = ['victim']
+                    self.found_victims_infos.append(vs)
 
         self.visited_cells.append((self.x,self.y))
-        
-        # if PhysAgent.ENDED:
-        #     fuzzy = FuzzySystem(self.found_victims_infos)
-            # gravidades = fuzzy.define_rules_and_infere_system()
-            # for victim in self.found_victims_infos:
-            #     victim.append()#gravidade
         return True
 

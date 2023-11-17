@@ -201,7 +201,6 @@ class Env:
                active_idle = True
 
         # Update the display
-        time.sleep(0.07)
         pygame.display.update()
         
                 
@@ -209,6 +208,8 @@ class Env:
         """ This public method is the engine of the simulator. It calls the deliberate
         method of each ACTIVE agent situated in the environment. Then, it updates the state
         of the agents and of the environment"""
+
+        cycle = 0
         # Set up Pygame
         pygame.init()
 
@@ -227,7 +228,7 @@ class Env:
         while running:
             # Handle events
             for event in pygame.event.get():
-                if event.type == pygame.QUIT:                  
+                if event.type == pygame.QUIT:                 
                     running = False
                     
             # control whether or not there are active or idle agents
@@ -240,6 +241,9 @@ class Env:
                 if body.state == PhysAgent.ACTIVE:
                     active_or_idle = True
                     more_actions_to_do = body.mind.deliberate()
+
+                    if cycle % 50 == 0:
+                        print(f"from env: cycle {cycle} {body.mind.NAME} remaining: {body.rtime}")
 
                     # Test if the agent exceeded the time limit
                     if body.end_of_time():
@@ -260,26 +264,30 @@ class Env:
             if self.dic["DELAY"] > 0:
                 time.sleep(self.dic["DELAY"])
                 
-            self.__draw()  
+            self.__draw()
 
-            # Show metrics
+            cycle += 1
+
+            # Show metrics when there is no more active or idle agents
             if not active_or_idle:
                 print("from env: no active or idle agent scheduled for execution... terminating")
-                self.print_results()
-                print("\n--------------")
-                input("from env: Tecle qualquer coisa para encerrar >>")
+                #self.print_results()
+                #print("\n--------------")
+                self.print_acum_results()
+                #input("from env: Tecle qualquer coisa para encerrar >>")
                 running = False
    
 
         # Quit Pygame
         pygame.quit()
 
-    def __print_victims(self, victims, type_str, sub):
+    def __print_victims(self, victims, type_str, sub, ident=3):
         """ Print either the found or the saved victims list
         @param victims: it is the list to be printed
         @param type_str: it is a string for composing the pring
         @param sub: it is a character representing the metric"""
 
+        idents = ' ' * ident
 
         if len(victims) > 0:
             sev = []
@@ -290,41 +298,36 @@ class Env:
                 grav.append(self.gravity[v])
                 tot_grav = tot_grav + self.gravity[v]
 
-
-            print(f"\n{type_str} victims: (id, severity, gravity)")
+            print(f"\n{idents}{type_str} victims: (id, severity, gravity)")
             for i in range(len(victims)):
-                print(f"({victims[i]:d}, {sev[i]:d}, {grav[i]:.1f})", end=' ')
+                print(f"{idents}({victims[i]:d}, {sev[i]:d}, {grav[i]:.1f})", end=' ')
 
             print("\n")
-            print(f"Critical victims {type_str}     (V{sub}1) = {sev.count(1):3d} out of {self.severity.count(1)} ({100*sev.count(1)/self.severity.count(1):.1f})%")
-            print(f"Instable victims {type_str}     (V{sub}2) = {sev.count(2):3d} out of {self.severity.count(2)} ({100*sev.count(2)/self.severity.count(2):.1f})%")
-            print(f"Pot. inst. victims {type_str}   (V{sub}3) = {sev.count(3):3d} out of {self.severity.count(3)} ({100*sev.count(3)/self.severity.count(3):.1f})%")
-            print(f"Stable victims {type_str}       (V{sub}4) = {sev.count(4):3d} out of {self.severity.count(4)} ({100*sev.count(4)/self.severity.count(4):.1f})%")
-            print("--------------------------------------")
-            print(f"Total of {type_str} victims     (V{sub})  = {len(sev):3d} ({100*float(len(sev)/self.nb_of_victims):.2f}%)")
+            if self.severity.count(1) > 0:
+                print(f"{idents}Critical victims {type_str}     (V{sub}1) = {sev.count(1):3d} out of {self.severity.count(1)} ({100*sev.count(1)/self.severity.count(1):.1f})%")
+            if self.severity.count(2) > 0:
+                print(f"{idents}Instable victims {type_str}     (V{sub}2) = {sev.count(2):3d} out of {self.severity.count(2)} ({100*sev.count(2)/self.severity.count(2):.1f})%")
+            if self.severity.count(3) > 0:
+                print(f"{idents}Pot. inst. victims {type_str}   (V{sub}3) = {sev.count(3):3d} out of {self.severity.count(3)} ({100*sev.count(3)/self.severity.count(3):.1f})%")
+            if self.severity.count(4) > 0:
+                print(f"{idents}Stable victims {type_str}       (V{sub}4) = {sev.count(4):3d} out of {self.severity.count(4)} ({100*sev.count(4)/self.severity.count(4):.1f})%")
+            print(f"{idents}--------------------------------------")
+            print(f"{idents}Total of {type_str} victims     (V{sub})  = {len(sev):3d} ({100*float(len(sev)/self.nb_of_victims):.2f}%)")
 
             weighted = ((6*sev.count(1) + 3*sev.count(2) + 2*sev.count(3) + sev.count(4))/
             (6*self.severity.count(1)+3*self.severity.count(2)+2*self.severity.count(3)+self.severity.count(4)))
 
-            print(f"Weighted {type_str} victims per severity (V{sub}g) = {weighted:.2f}\n")
+            print(f"{idents}Weighted {type_str} victims per severity (V{sub}g) = {weighted:.2f}\n")
             
-            print(f"Sum of gravities of all {type_str} victims = {tot_grav:.2f} of a total of {self.sum_gravity:.2f}")
-            print(f"  % of gravities of all {type_str} victims = {tot_grav/self.sum_gravity:.2f}")
+            print(f"{idents}Sum of gravities of all {type_str} victims = {tot_grav:.2f} of a total of {self.sum_gravity:.2f}")
+            print(f"{idents}  % of gravities of all {type_str} victims = {tot_grav/self.sum_gravity:.2f}")
         else:
-            print(f"No {type_str} victims")
+            print(f"{idents}No {type_str} victims")
 
     def print_results(self):
         """ For each agent, print found victims and saved victims by severity
         This is what actually happened in the environment. Observe that the
         beliefs of the agents may be different."""      
-
-        print("\n\n\n*** Numbers of Victims in the Environment ***")
-        print(f"Critical victims   (V1) = {self.severity.count(1):3d}")
-        print(f"Instable victims   (V2) = {self.severity.count(2):3d}")
-        print(f"Pot. inst. victims (V3) = {self.severity.count(3):3d}")
-        print(f"Stable victims     (V4) = {self.severity.count(4):3d}")
-        print("--------------------------------------")
-        print(f"Total of victims   (V)  = {self.nb_of_victims:3d}")
               
         print("\n\n*** Final results per agent ***")
         for body in self.agents:
@@ -338,12 +341,38 @@ class Env:
         
             # Found victims
             found = body.get_found_victims()
-            self.__print_victims(found, "found","e")
+            self.__print_victims(found, "found","e", ident=5)
 
             # Saved victims
             saved = body.get_saved_victims()
-            self.__print_victims(saved, "saved","s")
+            self.__print_victims(saved, "saved","s", ident=5)
  
             
+    def print_acum_results(self):
+        """ Print found victims and saved victims by severity for all agents.
+        This is what actually happened in the environment"""
 
+        print("\n\n*** ACUMULATED RESULTS - FOR ALL AGENTS ***\n")
+        print(f" *** Numbers of Victims in the Environment ***")
+        print(f"   Critical victims   (V1) = {self.severity.count(1):3d}")
+        print(f"   Instable victims   (V2) = {self.severity.count(2):3d}")
+        print(f"   Pot. inst. victims (V3) = {self.severity.count(3):3d}")
+        print(f"   Stable victims     (V4) = {self.severity.count(4):3d}")
+        print(f"   --------------------------------------")
+        print(f"   Total of victims   (V)  = {self.nb_of_victims:3d}")
 
+        found = []
+        for index, agents in enumerate(self.found, start=0):
+            if agents:
+                found.append(index)
+        print(f"")
+        print(f" *** FOUND victims by all explorer agents***")
+        self.__print_victims(found, "found", "e", ident=5)
+    
+        saved = []
+        for index, agents in enumerate(self.saved, start=0):
+            if agents:
+                saved.append(index)
+        print(f"")
+        print(f" *** SAVED victims by all rescuer agents***")
+        self.__print_victims(saved, "saved", "s", ident=5)
