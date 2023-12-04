@@ -12,9 +12,11 @@ def remove_colunas_por_numero(arquivo_entrada, arquivo_saida, numeros_colunas_pa
 
 if __name__ == "__main__":
     # Substitua 'input.csv', 'output.csv' e [1, 3] pelos seus valores
-    arquivo_entrada = 'sinais_vitais.txt'
+    arquivo_entrada = 'sinais.txt'
     arquivo_saida = 'sinais.txt'
-    numeros_colunas_para_remover = [0, 1, 2]
+    numeros_colunas_para_remover = [4]
+
+    
 
     # Chama a função para remover as colunas
     remove_colunas_por_numero(arquivo_entrada, arquivo_saida, numeros_colunas_para_remover)
