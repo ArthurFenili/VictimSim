@@ -4,10 +4,30 @@ from tensorflow.keras.optimizers import Adam
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import cross_val_score, KFold
+from joblib import dump, load
 
 
 # Define the file path
-file_path = 'sinais_normalizados.txt'
+file_path = 'sinais800_normalizados.txt'
+file_model1 = "model1.pickle" #11.67
+file_model2 = "model2.joblib" #6
+file_model3 = "model3.pickle" #7.94
+test_data_file = 'sinais_teste_normalizados.txt'
+with open(test_data_file, 'r') as file:
+    lines = file.readlines()
+
+#ignore the first line
+lines = lines[1:]
+
+# Extract data from lines and create a data matrix
+teste_sala = []
+for line in lines:
+    # Assuming data is comma-separated, modify as needed
+    row = [float(value) for value in line.strip().split(sep=',')]
+    teste_sala.append(row)
+# Convert the list of lists into a NumPy array
+teste_sala = np.array(teste_sala)
+print(teste_sala)
 
 try:
     # Read the TXT file and create a list of lines
@@ -125,6 +145,9 @@ def run_model1():
         real_value.append(y_test[i])
         print(f"Predicted value: {predictions[i][0]:.2f} | Actual value: {y_test[i]}")
 
+    # save model
+    dump(model1, file_model1)
+
 
 def run_model2():
     # MODELO 2 
@@ -162,17 +185,46 @@ def run_model2():
     mse = model2.evaluate(X_test_scaled, y_test)
     print(f"Mean Squared Error on Test Set for MODEL 2: {mse}")
 
+
+
     # Make predictions
     predictions = model2.predict(X_test_scaled)
 
     real_value = []
     predicted_value = []
+    erros = []
 
     print("MODEL 2 Predictions:")
     for i in range(len(y_test)):
         predicted_value.append(predictions[i][0])
         real_value.append(y_test[i])
+        erros.append(abs(y_test[i] - predictions[i][0]))
         print(f"Predicted value: {predictions[i][0]:.2f} | Actual value: {y_test[i]}")
+
+    #plot error curve based on predicted and real values
+    import matplotlib.pyplot as plt
+
+    #plot error curve based on predicted and real values, where the x axis is the real value and the y axis is the error
+    plt.plot(real_value, erros, 'ro')
+    plt.title('Erro do valor estimado pelo modelo em relação ao valor real')
+    plt.xlabel('Valor real')
+    plt.ylabel('Erro')
+    plt.show()
+
+    
+
+    teste_sala_scaled = scaler.transform(teste_sala)
+    resultado_Teste_sala = model2.predict(teste_sala_scaled)
+    print("Resultado Teste Cego:")
+    print(resultado_Teste_sala)
+
+    #save the result to txt
+    with open('resultado.txt', 'w') as file:
+        for item in resultado_Teste_sala:
+            file.write("%s\n" % item)
+            
+    # save model
+    dump(model2, file_model2)
 
 def run_model3():
     #RMSE = 21.5
@@ -221,6 +273,9 @@ def run_model3():
         predicted_value.append(predictions[i][0])
         real_value.append(y_test[i])
         print(f"Predicted value: {predictions[i][0]:.2f} | Actual value: {y_test[i]}")
+
+    # save model
+    dump(model3, file_model3)
 
 
 # Run the mainloop
